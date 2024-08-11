@@ -1,0 +1,31 @@
+#!/bin/bash
+
+dataset=$1
+model=$2
+path_to_repo="..."
+
+seed=1
+for freeze in "embeddings-2-3-4-5-6-7-8-9-10-11" "embeddings-0-1-2-3-4-7-8-9-10-11" "embeddings-0-1-2-3-4-5-6-7-8-9" 
+do
+    python ../layer_retraining.py \
+        --dataset $dataset \
+        --custom_model "${path_to_repo}/checkpoints/${dataset}/${model}_seed=${seed}_freeze=${freeze}_epoch=50.pt" \
+        --model_name $model \
+            --batch_size 8 \
+            --lr 3e-5 \
+            --num_epochs 5
+    wait
+done
+
+for seed in 1 2 3
+do
+    freeze="embeddings"
+    python ../layer_retraining.py \
+            --dataset $dataset \
+            --custom_model "${path_to_repo}/checkpoints/${dataset}/${model}_seed=${seed}_freeze=${freeze}_epoch=50.pt" \
+            --model_name $model \
+            --batch_size 8 \
+            --lr 3e-5 \
+            --num_epochs 5
+    wait
+done
